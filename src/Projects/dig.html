@@ -1,0 +1,200 @@
+<html>
+<head>
+	<link rel="stylesheet" href="/style.css">
+	<title>Digging Game</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="https://static.codehs.com/gulp/a207eaf74c9a65ef1504f82657de97532616341f/chs-js-lib/chs.js"></script>
+</head>
+<body>
+	<header>(<a href = "https://davidtstran.github.io" style="color:darkgray">Home</a>)
+		David Tran Header
+		(<a href = "https://github.com/davidtstran" style="color:darkgray">GitHub</a>) </header> <br> <br>
+	<h2>Click Start to Begin Game<br>Movement (Arrow Keys or WASD)<br></h2>
+	<h2 id = "blocks"></h2>
+	<p align = "center">
+		<input id = "start" type = "button" value = "Start" onclick = "start()"> <br> <br>
+		<canvas width="400" height="500" class="codehs-editor-canvas" style="background-color:black"></canvas>
+	</p>
+	
+<script>
+function start() {
+	removeAll(); // clear canvas
+	
+	var BUFFER = 1; // aid in checking
+	var canMove = true;
+	var block;
+	var BLOCK_SIZE = 25;
+	var NUM_ROWS = 20; // top 4 are "sky"
+	var B_PER_ROW = 16;
+	var blocks_destroyed = 0;
+	var TOTAL_BLOCKS = (NUM_ROWS-4) * B_PER_ROW;
+	var row;
+	var digger;
+	var DIGGER_SIZE = BLOCK_SIZE/2;
+	var DIGGER_COLOR = new Color (105, 105, 105);
+	var elem;
+	var enemy;
+	var ENEMY_COLOR = Color.red;
+	var ENEMY_SPEED = BLOCK_SIZE;
+	var DELAY = 500;
+	
+	generateWorld();
+	keyDownMethod(movement);
+	setTimer(enemyMove, DELAY); 
+	document.getElementById("blocks").innerHTML = "Blocks Destroyed: " + blocks_destroyed.toString(10);
+	
+	function generateWorld() {
+		createGround();
+		createDigger();
+		createEnemy();
+	}
+	
+	function createGround() {
+		for (row = 0; row < NUM_ROWS; row++){
+			for (var col = 0; col < B_PER_ROW; col++){
+				block = new Rectangle (BLOCK_SIZE, BLOCK_SIZE);
+				block.setPosition (col * BLOCK_SIZE, row * BLOCK_SIZE);
+				groundColor();
+				add (block);
+			}
+		}
+	}
+					
+	function groundColor() {
+		if (row >= 0 && row <= 3)
+			block.setColor (new Color(135, 206, 250)); // lightskyblue
+		else if (row >= 4 && row <= 7)
+			block.setColor (new Color(255, 235, 205)); // blanchedalmond
+		else if (row >= 8 && row <= 11)
+			block.setColor (new Color(255, 222, 173)); // navajowhite
+		else if (row >= 12 && row <= 15)
+			block.setColor (new Color(244, 164, 96)); // sandybrown
+		else if (row >= 16 && row <= 19)
+			block.setColor (new Color(205, 133, 63)); // peru
+	}
+	
+	function createDigger() {
+		digger = new Circle (DIGGER_SIZE);
+		digger.setPosition (7 * BLOCK_SIZE + BLOCK_SIZE / 2, 3 * BLOCK_SIZE + BLOCK_SIZE / 2);
+		digger.setColor (DIGGER_COLOR);
+		add (digger);
+	}
+	
+	function movement(e) {
+		if (canMove == true){
+			if (e.keyCode == Keyboard.UP || e.keyCode == Keyboard.letter('W')) {
+				if (digger.getY() - BLOCK_SIZE > 3 * BLOCK_SIZE) {
+					checkBlock("UP");
+					digger.move(0, -BLOCK_SIZE);
+				}
+			}
+			else if (e.keyCode == Keyboard.LEFT || e.keyCode == Keyboard.letter('A')) {
+				if (digger.getX() - BLOCK_SIZE > 0) {
+					checkBlock("LEFT");
+					digger.move(-BLOCK_SIZE, 0);
+				}
+			}
+			else if (e.keyCode == Keyboard.DOWN || e.keyCode == Keyboard.letter('S')) {
+				if (digger.getY() + BLOCK_SIZE < getHeight()) {
+					checkBlock("DOWN");
+					digger.move(0, BLOCK_SIZE);
+				}
+			}
+			else if (e.keyCode == Keyboard.RIGHT || e.keyCode == Keyboard.letter('D')) {
+				if (digger.getX() + BLOCK_SIZE < getWidth()) {
+					checkBlock("RIGHT");
+					digger.move(BLOCK_SIZE, 0);
+				}
+			}
+		}
+	}
+	
+	function checkBlock(dir) {
+		if (dir == "UP") {
+			elem = getElementAt(digger.getX(), digger.getY() - DIGGER_SIZE - BUFFER);
+			removeBlock();
+		}
+		else if (dir == "LEFT") {
+			elem = getElementAt(digger.getX() - DIGGER_SIZE - BUFFER, digger.getY());
+			removeBlock();
+		}
+		else if (dir == "DOWN") {
+			elem = getElementAt(digger.getX(), digger.getY() + DIGGER_SIZE + BUFFER);
+			removeBlock();
+		}
+		else if (dir == "RIGHT") {
+			elem = getElementAt(digger.getX() + DIGGER_SIZE + BUFFER, digger.getY());
+			removeBlock();
+		}
+	}
+	
+	function removeBlock() {
+		if (elem != null) {
+			if (elem.getColor() == "#FF0000") { // red enemy
+				remove(digger);
+				document.getElementById("blocks").innerHTML = "Died with " + blocks_destroyed.toString(10) + " Blocks Destroyed";            
+				canMove = false;
+			}
+			else if (elem.getColor() != "#87cefa") { // lightskyblue
+				remove(elem);
+				blocks_destroyed++;
+				document.getElementById("blocks").innerHTML = "Blocks Destroyed: " + blocks_destroyed.toString(10);
+				win();
+			}
+		}
+	}
+	
+	function createEnemy() {
+		enemy = new Circle (DIGGER_SIZE);
+		var enemyX = Randomizer.nextInt(0, 15); // 16 blocks
+		var enemyY = Randomizer.nextInt(4, 19); // 16 blocks (+ 4 sky)
+		enemy.setPosition (enemyX * BLOCK_SIZE + BLOCK_SIZE / 2, enemyY * BLOCK_SIZE + BLOCK_SIZE / 2);
+		enemy.setColor (ENEMY_COLOR);
+		add (enemy);
+	}
+	
+	function enemyMove() {
+		var eX = Randomizer.nextInt(0, 1);
+		var eY = Randomizer.nextInt(0, 1);
+		var eMoveX, eMoveY;
+		if (eX == 0) {
+			if (enemy.getX() - BLOCK_SIZE > 0)
+				eMoveX = -ENEMY_SPEED; // LEFT
+			else
+				eMoveX = 0;
+		}
+		else if (eX == 1) {
+			if (enemy.getX() + BLOCK_SIZE < getWidth())
+				eMoveX = ENEMY_SPEED; // RIGHT
+			else 
+				eMoveX = 0;
+		}
+		if (eY == 0) {
+			if (enemy.getY() - BLOCK_SIZE > 4 * BLOCK_SIZE)
+				eMoveY = -ENEMY_SPEED; // UP
+			else 
+				eMoveY = 0;
+		} 
+		else if (eY == 1) {
+			if (enemy.getY() + BLOCK_SIZE < getHeight()) 
+				eMoveY = ENEMY_SPEED; // DOWN
+			else 
+				eMoveY = 0;
+		}
+		enemy.move(eMoveX, eMoveY);
+	}
+	
+	function win() {
+		var blcks = blocks_destroyed/TOTAL_BLOCKS;
+		if (blcks % 1 == 0 && blcks != 0) {
+			document.getElementById("blocks").innerHTML = "Finished with " + blocks_destroyed.toString(10) + " Blocks Destroyed";
+			removeAll();
+			generateWorld();
+		}
+	}
+}
+</script>
+	
+
+</body>
+</html>

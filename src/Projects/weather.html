@@ -1,0 +1,154 @@
+<html>
+<head>
+	<link rel="stylesheet" href="/style.css">
+	<title>Weather</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://static.codehs.com/gulp/a207eaf74c9a65ef1504f82657de97532616341f/chs-js-lib/chs.js"></script>
+</head>
+<body>
+	<header>(<a href = "https://davidtstran.github.io" style="color:darkgray">Home</a>)
+		David Tran Header
+		(<a href = "https://github.com/davidtstran" style="color:darkgray">GitHub</a>) </header> <br> <br>
+	<h2>Weather Refreshes Every 10 Minutes<br>
+	    Data from OpenWeatherMap<br></h2>
+	<h2 id = "displayW">Default City is Kansas City</h2>
+	<p align = "center">
+		City: <input type = "text" id = "newCity">
+		<input type = "button" value = "Set/Change" onclick = "start()"> <br> <br>
+		<canvas width="500" height="500" class="codehs-editor-canvas" style="background-color:black"></canvas>
+	</p>
+	
+<script>
+function start() { 
+	stopAllTimers();
+	removeAll();
+	var BUFFER = 10;
+	var city, cityTZ, cityName, cityTemp;
+	var dayNight; // day true, night false 
+	var sunMoon;
+	var dayColor = new Color(135,206,235), nightColor = new Color(25,25,112); // skyblue | midnightblue
+	var sunColor = new Color(255,255,51), moonColor = new Color(255,255,240); // lightyellow4 | ivory 
+	var cloudSection;
+	var cloudColor = new Color(220,220,220);
+	var precipit = "Clear"; // (Clear/Clouds/Haze/Mist/Rain/Thunderstorm/Snow)
+	var weatherJSON;
+	
+	displayWeather();
+	setTimer(displayWeather, 600000); // 60000 = minute
+	
+	function displayWeather() {
+		if (document.getElementById("newCity").value == "") { city = "Kansas City"; }
+		else { city = document.getElementById("newCity").value; }
+		var apiKey = "13c9e93b7a505729f5d267751fde0e41";
+		var weatherLink = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
+        	$.getJSON(weatherLink,function(json){
+			weatherJSON = json;
+			//document.write(JSON.stringify(json)); // full JSON string
+			cityName = weatherJSON.name; // city name
+			cityTZ = parseInt(weatherJSON.timezone);// city timezone [in seconds]
+			cityTemp = weatherJSON.main.temp; // temperature default Kelvin
+			cityTemp = 9/5 * (parseFloat(cityTemp) - 273.15) + 32 // convert temp to Fahrenheit
+			precipit = weatherJSON.weather[0].main; // weather (Clear/Clouds/Haze/Mist/Rain/Thunderstorm/Snow)
+			
+			var cityDate = new Date();
+			var utcHours = cityDate.getUTCHours();
+			var cityHours = utcHours + cityTZ/3600;
+			if (cityHours >= 24) { cityHours = cityHours - 24; }
+			var dayStarts = 7, dayEnds = 20;
+			if (cityHours >= dayStarts && cityHours < dayEnds) { dayNight = true; } // UTC+offset time
+			else { dayNight = false; }
+			
+			background(dayNight);
+			cloudCreate(precipit);
+			if (precipit == "Rain" || precipit == "Snow" || precipit == "Thunderstorm") {
+					setTimer(precipitate, 100, precipit);
+			}
+			
+			var cityTimeHours = cityHours, cityAMPM;
+			if (cityTimeHours >= 12) { cityTimeHours -= 12; cityAMPM = "PM"; }
+			else { cityAMPM = "AM"; }
+			if (parseInt(cityTimeHours) == 0) { cityTimeHours = 12; }
+		
+			document.getElementById("displayW").innerHTML = cityName + " (" + parseInt(cityTimeHours) + " " + cityAMPM + ") " +
+							cityTemp.toFixed(2) + "°F " + precipit;
+        	});
+	}
+	function background(dN) { // true if day, false if night
+		var background = new Rectangle(getWidth(), getHeight());
+		sunMoon = new Circle(30);
+		sunMoon.setPosition(getWidth() - sunMoon.getRadius() - BUFFER, sunMoon.getRadius() + BUFFER);  // top right
+		if (dN) { background.setColor(dayColor); sunMoon.setColor(sunColor); add(background); add(sunMoon); }
+		else { 
+			background.setColor(nightColor); sunMoon.setColor(moonColor); 
+			add(background); add(sunMoon);
+			for (var i = 0; i < 20; i++) { 
+				var star = new Circle(2); 
+				star.setColor(moonColor);
+				star.setPosition(Randomizer.nextInt(0, getWidth()), Randomizer.nextInt(0, getHeight()/2)); 
+				add(star);
+			}
+		}
+	}
+	function cloudCreate(p) { // Clear or Not
+		var cloudCount = Randomizer.nextInt(10, 20), cloudRadius = (getWidth()/2)/cloudCount;
+		var cloudY = sunMoon.getY() + sunMoon.getRadius();
+		if (p != "Clear") {
+			cloudSection = new Rectangle(getWidth(), cloudRadius);
+			cloudSection.setPosition(0, cloudY);
+			cloudSection.setColor(cloudColor); add(cloudSection);
+			for (var i = 0; i < cloudCount; i ++) {
+				var cloud = new Circle(cloudRadius);
+				cloud.setColor(cloudColor);
+				cloud.setPosition(cloudRadius + cloudRadius*2*i, cloudY);
+				add(cloud);
+			}
+		}
+	}
+	function precipitate(p) { // (Clear/Clouds/Haze/Mist/Rain/Thunderstorm/Snow)
+		var precipColor, precipRadius = 5; 
+		if (p == "Rain" || p == "Thunderstorm") { precipColor = Color.blue; }
+		else if (p == "Snow") { precipColor = Color.white; }
+		for (var i = 0; i < getWidth()/(precipRadius*2); i++) {
+			var drop = new Rectangle(precipRadius, precipRadius*3);
+			var dropY = Randomizer.nextInt(cloudSection.getY() + cloudSection.getHeight(), getHeight()/2);
+			drop.setPosition(precipRadius + precipRadius*2*i, dropY);
+			drop.setColor(precipColor); drop.setBorderColor(Color.white);
+			add(drop);
+			setTimer(dropFall, 1, drop);
+		}
+		if (p == "Thunderstorm") { setTimer(lightningStrike, 10000); }
+	}
+	function dropFall(dp) {
+		if (dp.getY() > getHeight() - dp.getHeight())
+			remove(dp);
+		else {
+			var dropSpeed = Randomizer.nextFloat(10, 100);
+			dp.setPosition(dp.getX(), dp.getY() + dropSpeed);
+		}
+	}
+	function lightningStrike() {
+		var chanceLightning = Randomizer.nextInt(1, 10); 
+		if (chanceLightning == 10) { // 1in10 chance of lightning
+			var lightningLength = 50;
+			var x1 = Randomizer.nextInt(0, getWidth()), x2 = Randomizer.nextInt(0, getWidth());
+			var x3 = Randomizer.nextInt(0, getWidth()), x4 = Randomizer.nextInt(0, getWidth()); 
+			var y1 = cloudSection.getY() + cloudSection.getHeight(), y2 = y1 + lightningLength; 
+			var y3 = y2 + lightningLength, y4 = y3 + lightningLength;
+			var lghtngColor = Color.yellow;
+			var lightningLength = 10;
+			var line1 = new Line (x1, y1, x2, y2);
+			var line2 = new Line (x2, y2, x3, y3);
+			var line3 = new Line (x3, y3, x4, y4);
+			line1.setColor(lghtngColor); line2.setColor(lghtngColor); line3.setColor(lghtngColor);
+			add(line1); add(line2); add(line3);
+			setTimeout(function(){
+				remove(line1); remove(line2); remove(line3);
+			}, 100);
+		}
+	}
+}
+</script>
+	
+
+</body>
+</html>

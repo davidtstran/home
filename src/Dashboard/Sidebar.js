@@ -1,16 +1,17 @@
 import React from 'react';
+import Link from '@material-ui/core/Link';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import SportsEsportsIcon from '@material-ui/icons/SportsEsports';
-import PeopleIcon from '@material-ui/icons/People';
-import BarChartIcon from '@material-ui/icons/BarChart';
-import LayersIcon from '@material-ui/icons/Layers';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import WeatherIcon from '@material-ui/icons/WbSunny';
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import LinkedInIcon from '@material-ui/icons/LinkedIn';
 import HomeIcon from '@material-ui/icons/Home';
+import SchoolIcon from '@material-ui/icons/School';
 
 export const mainListItems = (
   <div>
@@ -28,21 +29,15 @@ export const mainListItems = (
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <PeopleIcon />
+        <WeatherIcon />
       </ListItemIcon>
-      <ListItemText primary="Customers" />
+      <ListItemText primary="Weather App" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <BarChartIcon />
+        <ScheduleIcon />
       </ListItemIcon>
-      <ListItemText primary="Reports" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <LayersIcon />
-      </ListItemIcon>
-      <ListItemText primary="Integrations" />
+      <ListItemText primary="Clock" />
     </ListItem>
   </div>
 );
@@ -55,6 +50,12 @@ export const secondaryListItems = (
         <PermIdentityIcon />
       </ListItemIcon>
       <ListItemText primary="Experience" />
+    </ListItem>
+    <ListItem button>
+      <ListItemIcon>
+        <SchoolIcon />
+      </ListItemIcon>
+      <ListItemText primary="Education" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>

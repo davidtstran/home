@@ -1,0 +1,91 @@
+<html>
+<head>
+	<link rel="stylesheet" href="/style.css">
+	<title>Clock</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://static.codehs.com/gulp/a207eaf74c9a65ef1504f82657de97532616341f/chs-js-lib/chs.js"></script>
+</head>
+<body>
+	<p align = "center">
+		<canvas width="400" height="400" class="codehs-editor-canvas" style="background-color:black"></canvas>
+	</p>
+	
+<script>
+window.onload = function() {
+	removeAll();
+	var nowTime, clock, clockHandsArray = [];
+	var clockTimeColor = Color.white;
+	var hourHandColor = Color.white;
+	var minHandColor = new Color(169,169,169);
+	var secHandColor = new Color(112,112,112);
+	var timeOfDay; // DAY/NIGHT (change background to reflect) ?
+	var BUFFER = 10;
+	
+	function start() {
+		displayTime();
+		setTimer(displayTime, 1000);
+	}
+	
+	function displayTime() {
+		removeAll();
+		nowTime = new Date();
+		var AMPM; if (nowTime.getHours() < 12) AMPM = " AM"; else AMPM = " PM";
+		var date = new Text (nowTime.getDate() + " " + month(nowTime.getMonth()) + " " + nowTime.getFullYear() 
+							 + "  " + hour(nowTime.getHours()) + ":" + time00(nowTime.getMinutes()) 
+							 + ":" + time00(nowTime.getSeconds()) + AMPM);
+		date.setPosition(getWidth()/2 - date.getWidth()/2, date.getHeight() + BUFFER);
+		date.setColor(clockTimeColor);
+		add(date);
+		displayClock(); // outline and tick markers
+		clockHands(nowTime.getHours(), nowTime.getMinutes(), nowTime.getSeconds());
+	}
+	function month(mh){
+		var months = ["January", "February", "March", "April", "May", "June",
+		             "July", "August", "September", "October", "November", "December"];
+		return(months[mh]);
+	}
+	function hour(hs) {
+		if (hs > 12) { timeOfDay = "NIGHT"; return hs-12; }
+		else { timeOfDay = "DAY"; return hs; }
+	}
+	function time00(timeIn) {
+		if (timeIn < 10) { return "0" + timeIn; }
+		else { return timeIn; }
+	}
+	function displayClock() {
+		clock = new Circle (150);
+		clock.setBorderColor(clockTimeColor);
+		clock.setBorderWidth(10);
+		clock.setPosition(getWidth()/2, getHeight()/2 + BUFFER);
+		add(clock);
+		var topClock = getHeight()/2 + BUFFER - clock.getRadius(), botClock = getHeight()/2 + BUFFER + clock.getRadius();
+		var leftClock = getWidth()/2 - clock.getRadius(), rightClock = getWidth()/2 + clock.getRadius();
+		
+		for (var i = 0; i < 60; i++) {
+			var endX = 0;
+			var endY = 0;
+			endX = clock.getX() + clock.getRadius()*Math.cos((i*3.14/30) - 3.14/2); // unit circle starts at 15 mark, - pi/2
+			endY = clock.getY() + clock.getRadius()*Math.sin((i*3.14/30) - 3.14/2); // unit circle starts at 15 mark, - pi/2
+			clockHandsArray[i] = new Line(clock.getX(), clock.getY(), endX, endY);
+		}
+		// ADD TICK MARKERS (1 to 12)
+	}
+	function clockHands(hrs, mins, secs) {
+		if (hrs >= 12) { hrs = hrs - 12 };
+		var hourHand = clockHandsArray[hrs*5];
+		var minHand = clockHandsArray[mins];
+		var secHand = clockHandsArray[secs];
+		hourHand.setColor(hourHandColor); minHand.setColor(minHandColor); secHand.setColor(secHandColor);
+		hourHand.setLineWidth(5); minHand.setLineWidth(5); secHand.setLineWidth(5);
+		add(hourHand); add(minHand); add(secHand);
+	}
+	
+	if (typeof start === 'function') {
+        	start();
+    	}
+}
+</script>
+	
+
+</body>
+</html>
