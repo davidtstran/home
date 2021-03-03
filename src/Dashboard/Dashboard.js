@@ -186,7 +186,7 @@ export default function Dashboard() {
             {/* Canvas */}
             <Grid item xs={12} md={9} lg={9}>
               <Paper className={canvasHeightPaper}>
-                <Canvas />
+              <Canvas draw={ctx => {}} />
               </Paper>
             </Grid>
             {/* Projects */}

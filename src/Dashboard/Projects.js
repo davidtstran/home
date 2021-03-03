@@ -14,12 +14,12 @@ function createData(id, url, name) {
 }
 
 const rows = [
-  createData(0, 'Link', 'X'),
-  createData(1, 'Link', 'Dig Dug'),
-  createData(2, 'Link', 'Pacman'),
-  createData(3, 'Link', 'Weather Application'),
-  createData(4, 'Link', 'Clock'),
-  createData(5, 'Link', '~')
+  createData(0, 'Link', 'Project'),
+  createData(1, 'Link', 'Project'),
+  createData(2, 'Link', 'Project'),
+  createData(3, 'Link', 'Project'),
+  createData(4, 'Link', 'Project'),
+  createData(5, 'Link', 'Project')
 ];
 
 function preventDefault(event) {

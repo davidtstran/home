@@ -57,17 +57,21 @@ export const secondaryListItems = (
       </ListItemIcon>
       <ListItemText primary="Education" />
     </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <LinkedInIcon />
-      </ListItemIcon>
-      <ListItemText primary="LinkedIn" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <GitHubIcon />
-      </ListItemIcon>
-      <ListItemText primary="GitHub" />
-    </ListItem>
+    <a href="https://www.linkedin.com/in/davidtstran" target="_blank">
+      <ListItem button>
+        <ListItemIcon>
+          <LinkedInIcon />
+        </ListItemIcon>
+        <ListItemText primary="LinkedIn" />
+      </ListItem>
+    </a>
+    <a href="https://github.com/davidtstran" target="_blank">
+      <ListItem button>
+        <ListItemIcon>
+          <GitHubIcon />
+        </ListItemIcon>
+        <ListItemText primary="GitHub" />
+      </ListItem>
+    </a>
   </div>
 );
