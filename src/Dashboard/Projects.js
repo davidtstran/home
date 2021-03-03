@@ -14,7 +14,7 @@ function createData(id, url, name) {
 }
 
 const rows = [
-  createData(0, 'Link', 'Project'),
+  createData(0, 'Link1', 'Project1'),
   createData(1, 'Link', 'Project'),
   createData(2, 'Link', 'Project'),
   createData(3, 'Link', 'Project'),
