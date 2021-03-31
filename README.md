@@ -1,6 +1,6 @@
 # Website Using JavaScript/WebGL/React
 
-https://davidtstran.github.io
+https://davidtstran.github.io/home
 
 Locally: npm start
 
